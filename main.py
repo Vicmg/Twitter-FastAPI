@@ -11,9 +11,18 @@ app = FastAPI()
 
 # Models
 
-class User(BaseModel):
+class UserBase(BaseModel):
     user_id: UUID = Field(...)
     email: EmailStr = Field(...)
+
+class UserLogin(UserBase):
+    password: str = Field(
+        ...,
+        min_length=8
+    )
+
+class User(UserBase):
+
     first_name: str = Field(
         ...,
         min_length=1,
