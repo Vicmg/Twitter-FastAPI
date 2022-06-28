@@ -1,5 +1,4 @@
 #Python
-from unittest.util import _MAX_LENGTH
 from uuid import UUID
 from datetime import date, datetime
 from typing import Optional,List
@@ -38,6 +37,12 @@ class User(UserBase):
     )
     brith_date: Optional[date] = Field(default=None)
 
+class UserRegister(User):
+    password: str = Field(
+        ...,
+        min_length=8,
+        max_length=20
+    )
 class Tweet(BaseModel):
     tweet_id: UUID = Field(...)
     content: str =  Field(
@@ -72,7 +77,22 @@ def signup():
 )
 
 def login():
-    pass
+    """
+    Signup
+
+    This path operations register a user in the app.
+
+    Parameters:
+        -Request body parameter
+            -user: UserRegister
+
+    Returns a json with the basic user information:
+        - user_id: UUID
+        - email: Emailstr
+        - first_name: str
+        - last:_name: str
+        - birth_date: str
+    """
 
 # * Show all users
 @app.get(
