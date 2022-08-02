@@ -14,6 +14,7 @@ from pydantic import Field
 from fastapi import FastAPI
 from fastapi import status
 from fastapi import Body
+from fastapi import Form
 
 app = FastAPI()
 
@@ -64,6 +65,25 @@ class Tweet(BaseModel):
     updated_at: Optional[datetime] = Field(default=None)
     by: User = Field(...)
 
+class LoginOut(BaseModel):
+    email: EmailStr = Field(...)
+    message: str = Field(default="Login Successfully!")
+
+"""# Auxiliar funcion
+
+## funcion reed
+def read_data(file):
+    with open("{}.json".format(file), "r+", encoding="utf-8") as f:
+        return json.loads(f.read())
+
+## funcion write
+def read_data(file, results):
+    with open("{}.json".format(file), "r+", encoding="utf-8") as f:
+        f.seek(0)
+        f.write(json.dumps(results))"""
+
+# !Path  Operations
+
 ## Users
 # * Register User
 @app.post(
@@ -104,14 +124,36 @@ def signup(user: UserRegister = Body(...)):
 # * Login a user
 @app.post(
     path="/login",
-    response_model=User,
+    response_model=LoginOut,
     status_code=status.HTTP_200_OK,
     summary="Login a User",
     tags=["Users"]
 )
 
-def login():
-    pass
+def login(
+    email: EmailStr = Form(...),
+    password: str = Form(...)):
+    """
+    Login
+
+    This path operation login a Personin the app
+
+    Parameters:
+    - Request body parametrs:
+        - email: Emailstr
+        - password: str
+
+    Returns LoginOut model with username and message and
+    """
+
+    with open("users.json", "r+", encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        for user in datos:
+            if email == user['email'] and password == user['password']:
+                return LoginOut(email=email)
+            else:
+                return LoginOut(email=email, message="Login Unsuccessfully!")
+
 
 # * Show all users
 @app.get(
@@ -189,7 +231,23 @@ def update_a_user():
     )
 
 def home():
-    return {"Twitter API":"Working!"}
+    """
+    Get Users
+
+    This path operation shows all tweets created in the app
+
+    Parameters: None
+
+    Returns a json list with all tweets in the app, with the following keys:
+    - tweet_id: UUID
+    - content: str
+    - created_at: datetime
+    - updated_at: Optional[datetime]
+    - by: User
+    """
+    with open("tweets.json", "r", encoding="utf-8") as f:
+        results = json.loads(f.read())
+        return results
 
 # *Post tweet
 @app.post(
